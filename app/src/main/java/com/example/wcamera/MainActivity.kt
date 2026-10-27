@@ -382,22 +382,6 @@ class MainActivity : ComponentActivity() {
                 toast(R.string.photo_saved)
             }
 
-            private fun syncLatestPhoto() {
-                val savedPhoto = preferences.getString(LATEST_PHOTO_KEY, null)?.let(Uri::parse)
-                if (savedPhoto == latestPhoto) return
-                latestPhoto = savedPhoto
-                if (savedPhoto == null) {
-                    thumbnailVersion++
-                    thumbnailCancellation?.cancel()
-                    thumbnailCancellation = null
-                    thumbnailButton.setImageDrawable(null)
-                    thumbnailButton.contentDescription = getString(R.string.no_photo)
-                    thumbnailButton.isEnabled = false
-                } else {
-                    loadThumbnail(savedPhoto)
-                }
-            }
-
             override fun onError(error: ImageCaptureException) {
                 Log.e(TAG, "Unable to save photo", error)
                 finishCapture()
@@ -405,6 +389,22 @@ class MainActivity : ComponentActivity() {
                 toast(R.string.photo_save_failed)
             }
         })
+    }
+
+    private fun syncLatestPhoto() {
+        val savedPhoto = preferences.getString(LATEST_PHOTO_KEY, null)?.let(Uri::parse)
+        if (savedPhoto == latestPhoto) return
+        latestPhoto = savedPhoto
+        if (savedPhoto == null) {
+            thumbnailVersion++
+            thumbnailCancellation?.cancel()
+            thumbnailCancellation = null
+            thumbnailButton.setImageDrawable(null)
+            thumbnailButton.contentDescription = getString(R.string.no_photo)
+            thumbnailButton.isEnabled = false
+        } else {
+            loadThumbnail(savedPhoto)
+        }
     }
 
     private fun finishCapture() {
