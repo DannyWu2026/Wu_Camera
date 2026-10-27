@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var orientationListener: OrientationEventListener
 
     private val ioExecutor = Executors.newSingleThreadExecutor()
-    private val mainExecutor by lazy { ContextCompat.getMainExecutor(this) }
+    private val uiExecutor by lazy { ContextCompat.getMainExecutor(this) }
     private val preferences by lazy { getSharedPreferences("camera", MODE_PRIVATE) }
     private var provider: ProcessCameraProvider? = null
     private var camera: Camera? = null
@@ -267,7 +267,7 @@ class MainActivity : ComponentActivity() {
             } catch (e: androidx.camera.core.CameraInfoUnavailableException) {
                 showCameraError(e)
             }
-        }, mainExecutor)
+        }, uiExecutor)
     }
 
     private fun bindCamera() {
@@ -366,7 +366,7 @@ class MainActivity : ComponentActivity() {
         val output = ImageCapture.OutputFileOptions.Builder(
             contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
         ).build()
-        capture.takePicture(output, mainExecutor, object : ImageCapture.OnImageSavedCallback {
+        capture.takePicture(output, uiExecutor, object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(result: ImageCapture.OutputFileResults) {
                 finishCapture()
                 val uri = result.savedUri
@@ -428,7 +428,7 @@ class MainActivity : ComponentActivity() {
             try {
                 if (cancellation.isCanceled) return@execute
                 val bitmap: Bitmap = contentResolver.loadThumbnail(uri, Size(256, 256), cancellation)
-                mainExecutor.execute {
+                uiExecutor.execute {
                     if (!isDestroyed && !cancellation.isCanceled && version == thumbnailVersion) {
                         thumbnailButton.setImageBitmap(bitmap)
                         thumbnailButton.contentDescription = getString(R.string.recent_photo)
@@ -450,7 +450,7 @@ class MainActivity : ComponentActivity() {
 
     private fun handleThumbnailError(uri: Uri, version: Int, error: Exception) {
         Log.e(TAG, "Unable to load photo thumbnail: $uri", error)
-        mainExecutor.execute {
+        uiExecutor.execute {
             if (!isDestroyed && version == thumbnailVersion) {
                 thumbnailCancellation = null
                 thumbnailButton.setImageResource(android.R.drawable.ic_menu_gallery)
@@ -508,7 +508,7 @@ class MainActivity : ComponentActivity() {
                         Thread.currentThread().interrupt()
                         Log.e(TAG, "Zoom interrupted", e)
                     }
-                }, mainExecutor)
+                }, uiExecutor)
                 return true
             }
         })
@@ -556,7 +556,7 @@ class MainActivity : ComponentActivity() {
                 Thread.currentThread().interrupt()
                 Log.e(TAG, "Focus interrupted", e)
             }
-        }, mainExecutor)
+        }, uiExecutor)
     }
 
     private val hideFocusIndicator = Runnable { focusIndicator.visibility = View.GONE }
