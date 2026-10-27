@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Wu相机</string>
+    <string name="flash_auto">闪光灯：自动</string>
+    <string name="flash_on">闪光灯：开</string>
+    <string name="flash_off">闪光灯：关</string>
+    <string name="flash_unavailable">闪光灯：不可用</string>
+    <string name="capture">拍照</string>
+    <string name="switch_camera">切换摄像头</string>
+    <string name="recent_photo">查看最近拍摄的照片</string>
+    <string name="no_photo">尚无照片</string>
+    <string name="camera_permission_required">请授予相机权限以拍照</string>
+    <string name="permission_settings">打开设置</string>
+    <string name="camera_error_retry">无法启动摄像头，点击重试</string>
+    <string name="photo_saved">照片已保存到相册</string>
+    <string name="photo_save_failed">照片保存失败，请重试</string>
+    <string name="photo_unavailable">照片不可用或已被删除</string>
+    <string name="thumbnail_unavailable">无法加载缩略图，请尝试打开照片</string>
+    <string name="no_image_viewer">没有可用的图片查看应用</string>
+    <string name="focus_failed">无法在此位置对焦</string>
+    <string name="zoom_failed">无法调整缩放</string>
+    <string name="zoom_ratio">%1$.1f×</string>
+</resources>
