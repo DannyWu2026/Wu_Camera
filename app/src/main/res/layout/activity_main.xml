@@ -71,8 +71,8 @@
         android:layout_gravity="bottom"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp">
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp">
 
         <FrameLayout
             android:layout_width="0dp"
