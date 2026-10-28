@@ -54,6 +54,7 @@ import kotlin.math.abs
 
 class MainActivity : ComponentActivity() {
     private lateinit var previewView: PreviewView
+    private lateinit var shutterOverlay: View
     private lateinit var focusIndicator: View
     private lateinit var flashButton: TextView
     private lateinit var zoomLabel: TextView
@@ -104,6 +105,7 @@ class MainActivity : ComponentActivity() {
             insets
         }
         previewView = findViewById(R.id.preview)
+        shutterOverlay = findViewById(R.id.shutter_overlay)
         focusIndicator = findViewById(R.id.focus_indicator)
         flashButton = findViewById(R.id.flash)
         zoomLabel = findViewById(R.id.zoom)
@@ -198,6 +200,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onDestroy() {
+        shutterOverlay.animate().cancel()
         focusIndicator.removeCallbacks(hideFocusIndicator)
         thumbnailCancellation?.cancel()
         thumbnailCancellation = null
@@ -357,6 +360,9 @@ class MainActivity : ComponentActivity() {
         if (capturing) return
         capturing = true
         updateControls()
+        shutterOverlay.animate().cancel()
+        shutterOverlay.alpha = 1f
+        shutterOverlay.animate().alpha(0f).setStartDelay(60).setDuration(180).start()
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "WCamera_$timestamp.jpg")
@@ -463,19 +469,7 @@ class MainActivity : ComponentActivity() {
 
     private fun openLatestPhoto() {
         val uri = latestPhoto ?: return
-        val intent = Intent(Intent.ACTION_VIEW).apply {
-            setDataAndType(uri, "image/jpeg")
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-        try {
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            Log.e(TAG, "No image viewer available", e)
-            toast(R.string.no_image_viewer)
-        } catch (e: SecurityException) {
-            Log.e(TAG, "Unable to open photo", e)
-            toast(R.string.photo_unavailable)
-        }
+        startActivity(Intent(this, PhotoViewerActivity::class.java).setData(uri))
     }
 
     private fun setupGestures() {
