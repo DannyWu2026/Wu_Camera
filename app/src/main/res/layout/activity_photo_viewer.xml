@@ -12,12 +12,21 @@
         android:contentDescription="@string/recent_photo"
         android:scaleType="matrix" />
 
+    <ImageView
+        android:id="@+id/photo_transition"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:importantForAccessibility="no"
+        android:scaleType="matrix" />
+
     <Button
         android:id="@+id/close_photo"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_gravity="top|start"
-        android:layout_margin="16dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="16dp"
         android:background="@drawable/control_background"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
@@ -27,9 +36,9 @@
     <TextView
         android:id="@+id/photo_count"
         android:layout_width="wrap_content"
-        android:layout_height="48dp"
+        android:layout_height="28dp"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="4dp"
         android:background="@drawable/control_background"
         android:gravity="center"
         android:paddingStart="20dp"

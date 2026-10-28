@@ -81,12 +81,14 @@
             android:gravity="center">
             <ImageButton
                 android:id="@+id/thumbnail"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:layout_gravity="center"
                 android:background="@drawable/thumbnail_background"
+                android:clipToOutline="true"
                 android:contentDescription="@string/no_photo"
                 android:enabled="false"
+                android:padding="0dp"
                 android:scaleType="centerCrop" />
         </FrameLayout>
 
@@ -105,19 +107,18 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center">
-            <Button
+            <ImageButton
                 android:id="@+id/switch_camera"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_gravity="center"
-                android:background="@drawable/control_background"
+                android:background="@drawable/switch_camera_background"
                 android:contentDescription="@string/switch_camera"
                 android:enabled="false"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
-                android:text="↻"
-                android:textColor="#FFFFFF"
-                android:textSize="32sp" />
+                android:padding="0dp"
+                android:src="@drawable/ic_switch_camera" />
         </FrameLayout>
     </LinearLayout>
 </FrameLayout>

@@ -1,6 +1,7 @@
 package com.example.wcamera
 
 import android.content.ContentUris
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.graphics.Matrix
 import android.graphics.RectF
@@ -32,9 +33,11 @@ class PhotoViewerActivity : ComponentActivity() {
     private val imageExecutor = Executors.newSingleThreadExecutor()
     private val loadVersion = AtomicInteger()
     private lateinit var imageView: ImageView
+    private lateinit var transitionView: ImageView
     private lateinit var photoCount: TextView
     private var photos: List<Uri> = emptyList()
     private var currentIndex = 0
+    private var displayedIndex: Int? = null
     private val photoMatrix = Matrix()
     private var photoScale = 1f
 
@@ -48,6 +51,7 @@ class PhotoViewerActivity : ComponentActivity() {
             insets
         }
         imageView = findViewById(R.id.photo_image)
+        transitionView = findViewById(R.id.photo_transition)
         photoCount = findViewById(R.id.photo_count)
         findViewById<Button>(R.id.close_photo).setOnClickListener { finish() }
         setupGestures()
@@ -132,14 +136,20 @@ class PhotoViewerActivity : ComponentActivity() {
         var lastY = 0f
         var multiplePointers = false
         var startedZoomed = false
-        var restoringZoom = false
+        var doubleTapHandled = false
         val tapDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
             override fun onDown(event: MotionEvent): Boolean = true
 
             override fun onDoubleTap(event: MotionEvent): Boolean {
-                if (photoScale <= 1f || imageView.drawable == null) return false
-                restoringZoom = true
-                resetPhotoTransform()
+                if (imageView.drawable == null) return false
+                doubleTapHandled = true
+                if (photoScale > 1f) {
+                    resetPhotoTransform()
+                } else {
+                    photoScale = DOUBLE_TAP_ZOOM
+                    photoMatrix.postScale(DOUBLE_TAP_ZOOM, DOUBLE_TAP_ZOOM, event.x, event.y)
+                    constrainPhotoTransform()
+                }
                 return true
             }
         })
@@ -155,7 +165,7 @@ class PhotoViewerActivity : ComponentActivity() {
             }
         }).apply { isQuickScaleEnabled = false }
         imageView.setOnTouchListener { view, event ->
-            if (event.actionMasked == MotionEvent.ACTION_DOWN) restoringZoom = false
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) doubleTapHandled = false
             tapDetector.onTouchEvent(event)
             scaleDetector.onTouchEvent(event)
             when (event.actionMasked) {
@@ -179,11 +189,11 @@ class PhotoViewerActivity : ComponentActivity() {
                 MotionEvent.ACTION_UP -> {
                     val distanceX = event.x - downX
                     val distanceY = event.y - downY
-                    if (!multiplePointers && !restoringZoom && !startedZoomed && photoScale == 1f &&
+                    if (!multiplePointers && !doubleTapHandled && !startedZoomed && photoScale == 1f &&
                         abs(distanceX) >= threshold && abs(distanceX) > abs(distanceY)
                     ) {
                         movePhoto(if (distanceX < 0) 1 else -1)
-                    } else if (!multiplePointers && !restoringZoom &&
+                    } else if (!multiplePointers && !doubleTapHandled &&
                         abs(distanceX) < threshold && abs(distanceY) < threshold
                     ) {
                         view.performClick()
@@ -236,15 +246,17 @@ class PhotoViewerActivity : ComponentActivity() {
         val next = currentIndex + offset
         if (next !in photos.indices) return
         currentIndex = next
+        if (next == displayedIndex) {
+            loadVersion.incrementAndGet()
+            return
+        }
         showCurrentPhoto()
     }
 
     private fun showCurrentPhoto() {
-        val uri = photos[currentIndex]
+        val targetIndex = currentIndex
+        val uri = photos[targetIndex]
         val version = loadVersion.incrementAndGet()
-        photoCount.text = getString(R.string.photo_position, currentIndex + 1, photos.size)
-        imageView.setImageDrawable(null)
-        photoScale = 1f
         val width = imageView.width
         val height = imageView.height
         imageExecutor.execute {
@@ -267,8 +279,7 @@ class PhotoViewerActivity : ComponentActivity() {
                     if (isFinishing || isDestroyed || version != loadVersion.get()) {
                         bitmap.recycle()
                     } else {
-                        imageView.setImageBitmap(bitmap)
-                        resetPhotoTransform()
+                        displayPhoto(bitmap, targetIndex)
                     }
                 }
             } catch (e: IOException) {
@@ -279,23 +290,47 @@ class PhotoViewerActivity : ComponentActivity() {
         }
     }
 
+    private fun displayPhoto(bitmap: Bitmap, index: Int) {
+        transitionView.animate().cancel()
+        transitionView.setImageDrawable(null)
+        val previous = imageView.drawable?.constantState?.newDrawable(resources)?.mutate()
+        if (previous != null) {
+            transitionView.setImageDrawable(previous)
+            transitionView.imageMatrix = Matrix(imageView.imageMatrix)
+            transitionView.alpha = 1f
+        }
+        imageView.setImageBitmap(bitmap)
+        resetPhotoTransform()
+        displayedIndex = index
+        currentIndex = index
+        photoCount.text = getString(R.string.photo_position, index + 1, photos.size)
+        if (previous != null) {
+            transitionView.animate().alpha(0f).setDuration(150).withEndAction {
+                transitionView.setImageDrawable(null)
+            }.start()
+        }
+    }
+
     private fun reportPhotoError(uri: Uri, version: Int, error: Exception) {
         Log.e(TAG, "Unable to load photo: $uri", error)
         ContextCompat.getMainExecutor(this).execute {
             if (!isFinishing && !isDestroyed && version == loadVersion.get()) {
+                displayedIndex?.let { currentIndex = it }
                 Toast.makeText(this, R.string.photo_unavailable, Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        photos.getOrNull(currentIndex)?.let { outState.putString(STATE_PHOTO_URI, it.toString()) }
+        photos.getOrNull(displayedIndex ?: currentIndex)?.let { outState.putString(STATE_PHOTO_URI, it.toString()) }
         super.onSaveInstanceState(outState)
     }
 
     override fun onDestroy() {
         loadVersion.incrementAndGet()
         imageExecutor.shutdownNow()
+        transitionView.animate().cancel()
+        transitionView.setImageDrawable(null)
         imageView.setImageDrawable(null)
         super.onDestroy()
     }
@@ -303,6 +338,7 @@ class PhotoViewerActivity : ComponentActivity() {
     companion object {
         private const val TAG = "PhotoViewer"
         private const val STATE_PHOTO_URI = "current_photo_uri"
+        private const val DOUBLE_TAP_ZOOM = 4f
         private const val MAX_ZOOM = 8f
         private const val MAX_DECODE_PIXELS = 6_000_000.0
     }

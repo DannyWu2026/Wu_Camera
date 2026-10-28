@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var flashButton: TextView
     private lateinit var zoomLabel: TextView
     private lateinit var captureButton: Button
-    private lateinit var switchButton: Button
+    private lateinit var switchButton: ImageButton
     private lateinit var thumbnailButton: ImageButton
     private lateinit var retryButton: Button
     private lateinit var orientationListener: OrientationEventListener
@@ -333,6 +333,7 @@ class MainActivity : ComponentActivity() {
         val ready = camera != null && imageCapture != null && !capturing
         captureButton.isEnabled = ready
         switchButton.isEnabled = ready && hasBothCameras
+        switchButton.alpha = if (switchButton.isEnabled) 1f else 0.5f
         flashButton.isEnabled = ready && camera?.cameraInfo?.hasFlashUnit() == true
         flashButton.alpha = if (flashButton.isEnabled) 1f else 0.5f
         flashButton.setText(
