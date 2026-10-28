@@ -11,13 +11,10 @@
     <string name="camera_permission_required">请授予相机权限以拍照</string>
     <string name="permission_settings">打开设置</string>
     <string name="camera_error_retry">无法启动摄像头，点击重试</string>
-    <string name="photo_saved">照片已保存到相册</string>
     <string name="photo_save_failed">照片保存失败，请重试</string>
     <string name="photo_unavailable">照片不可用或已被删除</string>
     <string name="thumbnail_unavailable">无法加载缩略图，请尝试打开照片</string>
     <string name="back_to_camera">返回相机</string>
-    <string name="newer_photo">较新</string>
-    <string name="older_photo">较早</string>
     <string name="photo_position">%1$d / %2$d</string>
     <string name="photo_list_unavailable">无法读取照片列表，只能查看当前照片</string>
     <string name="focus_failed">无法在此位置对焦</string>

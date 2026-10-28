@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/recent_photo"
-        android:scaleType="fitCenter" />
+        android:scaleType="matrix" />
 
     <Button
         android:id="@+id/close_photo"
@@ -24,38 +24,15 @@
         android:text="@string/back_to_camera"
         android:textColor="#FFFFFF" />
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/photo_count"
         android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="16dp"
         android:background="@drawable/control_background"
         android:gravity="center"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/newer_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:enabled="false"
-            android:text="@string/newer_photo"
-            android:textColor="#FFFFFF" />
-
-        <TextView
-            android:id="@+id/photo_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="#FFFFFF" />
-
-        <Button
-            android:id="@+id/older_photo"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:enabled="false"
-            android:text="@string/older_photo"
-            android:textColor="#FFFFFF" />
-    </LinearLayout>
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="#FFFFFF" />
 </FrameLayout>

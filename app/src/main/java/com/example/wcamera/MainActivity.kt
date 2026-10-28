@@ -362,7 +362,7 @@ class MainActivity : ComponentActivity() {
         updateControls()
         shutterOverlay.animate().cancel()
         shutterOverlay.alpha = 1f
-        shutterOverlay.animate().alpha(0f).setStartDelay(60).setDuration(180).start()
+        shutterOverlay.animate().alpha(0f).setStartDelay(20).setDuration(50).start()
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "WCamera_$timestamp.jpg")
@@ -384,8 +384,6 @@ class MainActivity : ComponentActivity() {
                     return
                 }
                 preferences.edit().putString(LATEST_PHOTO_KEY, uri.toString()).apply()
-                if (isFinishing || isDestroyed) return
-                toast(R.string.photo_saved)
             }
 
             override fun onError(error: ImageCaptureException) {
