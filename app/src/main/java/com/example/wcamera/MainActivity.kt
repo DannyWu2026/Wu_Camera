@@ -145,6 +145,7 @@ class MainActivity : ComponentActivity() {
             } else {
                 CameraSelector.LENS_FACING_BACK
             }
+            updateControls()
             bindCamera()
         }
         flashButton.setOnClickListener { cycleFlash() }
@@ -334,6 +335,7 @@ class MainActivity : ComponentActivity() {
         captureButton.isEnabled = ready
         switchButton.isEnabled = ready && hasBothCameras
         switchButton.alpha = if (switchButton.isEnabled) 1f else 0.5f
+        flashButton.visibility = if (lensFacing == CameraSelector.LENS_FACING_FRONT) View.GONE else View.VISIBLE
         flashButton.isEnabled = ready && camera?.cameraInfo?.hasFlashUnit() == true
         flashButton.alpha = if (flashButton.isEnabled) 1f else 0.5f
         flashButton.setText(
